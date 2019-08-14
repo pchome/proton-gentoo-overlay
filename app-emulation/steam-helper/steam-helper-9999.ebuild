@@ -37,6 +37,18 @@ src_prepare() {
 	cp "${FILESDIR}/meson.build" ${S}
 	cp "${FILESDIR}/build-steam.txt" ${S}
 	default
+
+	bootstrap_steam() {
+		# Add *FLAGS to cross-file
+		sed -E \
+			-e "s#^(c_args.*)#\1 + $(_meson_env_array "${CFLAGS}")#" \
+			-e "s#^(cpp_args.*)#\1 + $(_meson_env_array "${CXXFLAGS}")#" \
+			-e "s#^(c_link_args.*)#\1 + $(_meson_env_array "${LDFLAGS}")#" \
+			-e "s#^(cpp_link_args.*)#\1 + $(_meson_env_array "${LDFLAGS}")#" \
+			-i build-steam.txt || die
+	}
+
+	multilib_foreach_abi bootstrap_steam || die
 }
 
 multilib_src_configure() {
