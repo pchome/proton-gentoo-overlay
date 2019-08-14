@@ -40,6 +40,18 @@ src_prepare() {
 	cp "${FILESDIR}/build-lsteamclient32.txt" ${S}
 	cp "${FILESDIR}/build-lsteamclient64.txt" ${S}
 	default
+
+	bootstrap_lsteamclient() {
+		# Add *FLAGS to cross-file
+		sed -E \
+			-e "s#^(c_args.*)#\1 + $(_meson_env_array "${CFLAGS}")#" \
+			-e "s#^(cpp_args.*)#\1 + $(_meson_env_array "${CXXFLAGS}")#" \
+			-e "s#^(c_link_args.*)#\1 + $(_meson_env_array "${LDFLAGS}")#" \
+			-e "s#^(cpp_link_args.*)#\1 + $(_meson_env_array "${LDFLAGS}")#" \
+			-i build-lsteamclient$(bits).txt || die
+	}
+
+	multilib_foreach_abi bootstrap_lsteamclient || die
 }
 
 multilib_src_configure() {
