@@ -144,6 +144,7 @@ PATCHES=(
 	"${PATCHDIR}/patches/${MY_PN}-4.7-multilib-portage.patch" #395615
 	"${PATCHDIR}/patches/${MY_PN}-4.7-memset-O3.patch" #480508
 	"${PATCHDIR}/patches/${MY_PN}-2.0-multislot-apploader.patch" #310611
+	"${FILESDIR}/WINEMODPATH.patch"
 )
 PATCHES_BIN=()
 
