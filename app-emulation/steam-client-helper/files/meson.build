@@ -1,4 +1,4 @@
-project('steam-client-helper', ['c', 'cpp'], version : 'v3.11', meson_version : '>= 0.49')
+project('steam-client-helper', ['c', 'cpp'], version : '4.11', meson_version : '>= 0.49')
 
 sdk_ver = '144'
 
