@@ -31,6 +31,7 @@ DEPEND="${RDEPEND}
 
 PATCHES=(
 	"${FILESDIR}/install-each-lib-in-subdir.patch"
+	"${FILESDIR}/ddraw-stub.patch"
 )
 
 bits() { [[ ${ABI} = amd64 ]] && echo 64 || echo 32; }

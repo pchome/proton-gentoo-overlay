@@ -1,0 +1,33 @@
+--- /dev/null
++++ b/src/ddraw/ddraw.spec
+@@ -0,0 +1 @@
++@ stdcall DirectDrawCreateEx(ptr ptr ptr ptr)
+--- /dev/null
++++ b/src/ddraw/ddraw_main.cpp
+@@ -0,0 +1,7 @@
++#include "../dxgi/dxgi_include.h"
++
++extern "C" {
++  DLLEXPORT HRESULT __stdcall DirectDrawCreateEx(GUID *driver_guid, void **ddraw, REFIID interface_iid, IUnknown *outer) {
++    return E_INVALIDARG;
++  }
++}
+--- /dev/null
++++ b/src/ddraw/meson.build
+@@ -0,0 +1,6 @@
++ddraw_dll = shared_library('ddraw'+dll_ext, 'ddraw_main.cpp',
++  name_prefix         : '',
++  include_directories : dxvk_include_path,
++  install             : true,
++  install_dir         : get_option('libdir') / 'ddraw-stub',
++  objects             : 'ddraw.spec')
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -2,6 +2,7 @@ subdir('util')
+ subdir('spirv')
+ subdir('vulkan')
+ subdir('dxvk')
++subdir('ddraw')
+ 
+ if get_option('enable_dxgi')
+   if not get_option('enable_d3d10') and not get_option('enable_d3d11')
