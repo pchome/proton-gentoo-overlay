@@ -1,0 +1,8 @@
+--- a/meson.build
++++ b/meson.build
+@@ -24,4 +24,5 @@ shared_library(nvapi_dll, nvapi_src,
+   name_prefix         : '',
+   dependencies        : declare_dependency(link_args: [ '-ld3d11' ]),
+   objects             : nvapi_spec,
++  install_dir         : get_option('libdir') / 'nvapi',
+   install             : true)
