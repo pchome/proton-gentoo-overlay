@@ -1,0 +1,18 @@
+--- a/proton
++++ b/proton
+@@ -299,6 +299,7 @@
+                     try_copy(steamdir + "/legacycompat/" + f, dstfile)
+ 
+             #copy openvr files into place
++            '''
+             dst = self.prefix_dir + "/drive_c/vrclient/bin/"
+             makedirs(dst)
+             try_copy(g_proton.lib_dir + "wine/fakedlls/vrclient.dll", dst)
+@@ -377,6 +378,7 @@
+                         json.dump(j, vfile, indent=2)
+                 except (ValueError, OSError):
+                     log("Unable to write VR config! " + str(sys.exc_info()[1]))
++            '''
+ 
+             if "wined3d" in g_session.compat_config:
+                 dxvkfiles = []

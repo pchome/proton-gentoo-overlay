@@ -1,0 +1,33 @@
+--- a/proton
++++ b/proton
+@@ -395,12 +397,30 @@
+                 try_copy(g_proton.default_pfx_dir + "drive_c/windows/syswow64/" + f + ".dll",
+                         self.prefix_dir + "drive_c/windows/syswow64/" + f + ".dll")
+ 
++            '''
+             for f in dxvkfiles:
+                 try_copy(g_proton.lib64_dir + "wine/dxvk/" + f + ".dll",
+                         self.prefix_dir + "drive_c/windows/system32/" + f + ".dll")
+                 try_copy(g_proton.lib_dir + "wine/dxvk/" + f + ".dll",
+                         self.prefix_dir + "drive_c/windows/syswow64/" + f + ".dll")
+                 g_session.dlloverrides[f] = "n"
++            '''
++            def use_wine_module(name):
++                log("Wine module: " + name)
++                mod_path = '/usr/lib64/wine-modules/' + name + ':/usr/lib/wine-modules/' + name
++
++                if "WINEMODPATH" in g_session.env:
++                    g_session.env["WINEMODPATH"] = g_session.env["WINEMODPATH"] + ':' + mod_path
++                elif "WINEMODPATH" in os.environ:
++                    g_session.env["WINEMODPATH"] = os.environ["WINEMODPATH"] + ':' + mod_path
++                else:
++                    g_session.env["WINEMODPATH"] = mod_path
++
++            use_wine_module('dxvk/dxgi')  if 'dxgi'  in dxvkfiles else log('Wine module: dxvk/dxgi  disabled!')
++            use_wine_module('dxvk/d3d10') if 'd3d10' in dxvkfiles else log('Wine module: dxvk/d3d10 disabled!')
++            use_wine_module('dxvk/d3d11') if 'd3d11' in dxvkfiles else log('Wine module: dxvk/d3d11 disabled!')
++            use_wine_module('d9vk/d3d9')  if 'd3d9'  in dxvkfiles else log('Wine module: d9vk/d3d9  disabled!')
++
+ 
+ class Session:
+     def __init__(self):
