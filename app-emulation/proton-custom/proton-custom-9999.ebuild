@@ -49,7 +49,7 @@ PATCHES=(
 )
 
 src_prepare() {
-	echo "$(date +"%s") proton-custom-${PROTON_VER}-1" >> "${S}/version"
+	echo "$(date +"%s") proton-${PROTON_VER}-1" >> "${S}/version"
 	touch dist.lock
 
 	# create compatibilitytool.vdf
