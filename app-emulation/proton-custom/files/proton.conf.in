@@ -1,0 +1,25 @@
+[paths]
+;base_dir = /usr/share/steam/compatibilitytools.d/proton-custom-@PV@/
+
+# TODO: remove both "dist/" dir and check
+dist_dir = /usr/
+
+bin_dir = /usr/@LIB32@/wine-proton-@PV@/bin/
+lib_dir = /usr/@LIB32@/wine-proton-@PV@/
+lib64_dir = /usr/@LIB64@/wine-proton-@PV@/
+fonts_dir = /usr/share/fonts/liberation-fonts/
+
+
+# Pointing to the same file, disables auto-update
+# Short example:
+;dist_version_file = %(version_file)s
+version_file = /usr/share/steam/compatibilitytools.d/proton-custom-@PV@/version
+dist_version_file = /usr/share/steam/compatibilitytools.d/proton-custom-@PV@/version
+
+
+default_pfx_dir = ~/.local/share/proton-custom-@PROTON_VER@-default_pfx/
+dist_lock_file = ~/.local/share/proton-custom-@PROTON_VER@-dist.lock
+
+
+# TODO: import user_settings_file
+;user_settings_file = ~/.config/proton-custom-@PROTON_VER@-user_settings.py

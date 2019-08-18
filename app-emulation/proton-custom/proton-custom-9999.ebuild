@@ -46,11 +46,13 @@ DEPEND="${RDEPEND}"
 PATCHES=(
 	"${FILESDIR}/proton-custom-tmp-no-vr.patch" # temporary disabled
 	"${FILESDIR}/proton-custom-use-wine-modules.patch"
+	"${FILESDIR}/proton-custom-use-config.patch"
 )
 
 src_prepare() {
 	echo "$(date +"%s") proton-${PROTON_VER}-1" >> "${S}/version"
-	touch dist.lock
+
+	cp "${FILESDIR}/proton.conf.in" "${S}/proton.conf"
 
 	# create compatibilitytool.vdf
 	sed -E \
@@ -63,10 +65,15 @@ src_prepare() {
 	sed -E \
 		-e "s#^CURRENT_PREFIX_VERSION=\".*-1\"#CURRENT_PREFIX_VERSION=\"${PROTON_VER}-1\"#" \
 		-e "s#^PFX=\"Proton: \"#PFX=\"Proton (custom): \"#" \
-		-e "s#self\.path\(\"dist/share/default_pfx/\"\)#os.path.expanduser('~/.local/share/${PN}-${PROTON_VER}-default_pfx/')#" \
 		-i proton || die
-	# TODO
-#		-e "s#self\.path\(\"user_settings.py\"\)#os.path.expanduser('~/.config/${PN}-${PROTON_VER}-user_settings.py')#" \
+
+	# set config
+	sed -E \
+		-e "s#@PV@#${PV}#g" \
+		-e "s#@PROTON_VER@#${PROTON_VER}#g" \
+		-e "s#@LIB32@#$(get_abi_LIBDIR x86)#g" \
+		-e "s#@LIB64@#$(get_abi_LIBDIR amd64)#g" \
+		-i proton.conf || die
 
 	default
 }
@@ -79,6 +86,7 @@ multilib_src_install_all() {
 
 	insinto "${ins_path}"
 
+	doins "${S}/proton.conf"
 	doins "${S}/user_settings.sample.py"
 	
 	doins "${S}/compatibilitytool.vdf"
@@ -86,27 +94,6 @@ multilib_src_install_all() {
 	
 	doins "${S}/proton_3.7_tracked_files"
 	doins "${S}/version"
-	doins "${S}/dist.lock"
 
 	doins "${S}/README.md"
-
-	# dist dir
-	dodir "${ins_path}/dist"
-	dodir "${ins_path}/dist/share"
-
-	# create lib and lib64 dir
-	abilinks() { dosym "${EPREFIX}/usr/$(get_abi_LIBDIR ${ABI})/wine-proton-${PV}" "${ins_path}/dist/$(get_abi_LIBDIR ${ABI})"; }
-	multilib_foreach_abi abilinks || die
-
-	# bin dir
-	dosym "${EPREFIX}/usr/$(get_abi_LIBDIR x86)/wine-proton-${PV}/bin" "${ins_path}/dist/bin"
-
-	dosym "../version" "${ins_path}/dist/version"
-
-	# share dir
-	dosym "${EPREFIX}/usr/share/wine-proton-${PV}/applications" "${ins_path}/dist/share/applications"
-	dosym "${EPREFIX}/usr/share/wine-proton-${PV}/wine" "${ins_path}/dist/share/wine"
-
-	# fonts dir
-	dosym "${EPREFIX}/usr/share/fonts/liberation-fonts" "${ins_path}/dist/share/fonts"
 }
