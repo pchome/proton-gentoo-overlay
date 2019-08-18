@@ -47,6 +47,7 @@ PATCHES=(
 	"${FILESDIR}/proton-custom-tmp-no-vr.patch" # temporary disabled
 	"${FILESDIR}/proton-custom-use-wine-modules.patch"
 	"${FILESDIR}/proton-custom-use-config.patch"
+	"${FILESDIR}/proton-custom-user_settings.patch"
 )
 
 src_prepare() {
