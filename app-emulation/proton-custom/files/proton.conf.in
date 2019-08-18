@@ -18,7 +18,7 @@ version_file = /usr/share/steam/compatibilitytools.d/proton-custom-@PV@/version
 dist_version_file = /usr/share/steam/compatibilitytools.d/proton-custom-@PV@/version
 
 
-default_pfx_dir = ~/.local/share/proton-custom-@PROTON_VER@-default_pfx/
-dist_lock_file = ~/.local/share/proton-custom-@PROTON_VER@-dist.lock
+default_pfx_dir = ~/.local/share/proton-default-pfx-@PROTON_VER@/
+dist_lock_file = ~/.local/share/proton-dist-@PROTON_VER@.lock
 
-user_settings_file = ~/.config/proton-custom-@PROTON_VER@-user_settings.py
+user_settings_file = ~/.config/proton/user_settings.py
