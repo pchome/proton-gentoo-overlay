@@ -12,7 +12,8 @@ inc = include_directories([
 
 dep = declare_dependency(link_args: [
   '-L'+src_path,
-  '-lsteam_api'
+  '-lsteam_api',
+  '-lole32'
 ])
 
 executable('steam.exe.so', files(src_path / 'steam.cpp'),
