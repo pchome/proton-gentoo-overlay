@@ -1,6 +1,6 @@
 project('steam-client-helper', ['c', 'cpp'], version : '4.11', meson_version : '>= 0.49')
 
-sdk_ver = '144'
+sdk_ver = '146'
 
 src_path = meson.source_root() / 'lsteamclient'
 
@@ -16,7 +16,8 @@ add_project_arguments(defs, language : ['c','cpp'])
 src = files([
   src_path / 'steamclient_main.c',
   src_path / 'steamclient_wrappers.c',
-  src_path / 'steamclient_manual_@0@.cpp'.format(sdk_ver),
+  src_path / 'steamclient_manual_144.cpp',
+  src_path / 'steamclient_manual_145.cpp',
 
   src_path / 'winISteamAppList.c',
   src_path / 'winISteamApps.c',
@@ -44,6 +45,7 @@ src = files([
   src_path / 'winISteamNetworkingUtils.c',
   src_path / 'winISteamParentalSettings.c',
   src_path / 'winISteamParties.c',
+  src_path / 'winISteamRemotePlay.c',
   src_path / 'winISteamRemoteStorage.c',
   src_path / 'winISteamScreenshots.c',
   src_path / 'winISteamUGC.c',
@@ -76,6 +78,7 @@ src = files([
   src_path / 'cppISteamClient_SteamClient016.cpp',
   src_path / 'cppISteamClient_SteamClient017.cpp',
   src_path / 'cppISteamClient_SteamClient018.cpp',
+  src_path / 'cppISteamClient_SteamClient019.cpp',
   src_path / 'cppISteamController_SteamController003.cpp',
   src_path / 'cppISteamController_SteamController004.cpp',
   src_path / 'cppISteamController_SteamController005.cpp',
@@ -140,14 +143,17 @@ src = files([
   src_path / 'cppISteamNetworkingSocketsSerialized_SteamNetworkingSocketsSerialized002.cpp',
   src_path / 'cppISteamNetworkingSocketsSerialized_SteamNetworkingSocketsSerialized003.cpp',
   src_path / 'cppISteamNetworkingSockets_SteamNetworkingSockets002.cpp',
+  src_path / 'cppISteamNetworkingSockets_SteamNetworkingSockets003.cpp',
   src_path / 'cppISteamNetworking_SteamNetworking001.cpp',
   src_path / 'cppISteamNetworking_SteamNetworking002.cpp',
   src_path / 'cppISteamNetworking_SteamNetworking003.cpp',
   src_path / 'cppISteamNetworking_SteamNetworking004.cpp',
   src_path / 'cppISteamNetworking_SteamNetworking005.cpp',
   src_path / 'cppISteamNetworkingUtils_SteamNetworkingUtils001.cpp',
+  src_path / 'cppISteamNetworkingUtils_SteamNetworkingUtils002.cpp',
   src_path / 'cppISteamParentalSettings_STEAMPARENTALSETTINGS_INTERFACE_VERSION001.cpp',
   src_path / 'cppISteamParties_SteamParties002.cpp',
+  src_path / 'cppISteamRemotePlay_STEAMREMOTEPLAY_INTERFACE_VERSION001.cpp',
   src_path / 'cppISteamRemoteStorage_STEAMREMOTESTORAGE_INTERFACE_VERSION001.cpp',
   src_path / 'cppISteamRemoteStorage_STEAMREMOTESTORAGE_INTERFACE_VERSION002.cpp',
   src_path / 'cppISteamRemoteStorage_STEAMREMOTESTORAGE_INTERFACE_VERSION003.cpp',
@@ -176,6 +182,7 @@ src = files([
   src_path / 'cppISteamUGC_STEAMUGC_INTERFACE_VERSION009.cpp',
   src_path / 'cppISteamUGC_STEAMUGC_INTERFACE_VERSION010.cpp',
   src_path / 'cppISteamUGC_STEAMUGC_INTERFACE_VERSION012.cpp',
+  src_path / 'cppISteamUGC_STEAMUGC_INTERFACE_VERSION013.cpp',
   src_path / 'cppISteamUnifiedMessages_STEAMUNIFIEDMESSAGES_INTERFACE_VERSION001.cpp',
   src_path / 'cppISteamUserStats_STEAMUSERSTATS_INTERFACE_VERSION001.cpp',
   src_path / 'cppISteamUserStats_STEAMUSERSTATS_INTERFACE_VERSION002.cpp',
@@ -219,7 +226,7 @@ src = files([
 sdk_list = [112, 113, 114, 115, 116, 117, 118, 119,
   120, 121, 122, 123, 124, 125, 126, 127, 128, 129,
   130, 131, 132, 133, 134, 135, 136, 137, 138, 139,
-  140, 141, 142, 143, 144,]
+  140, 141, 142, 143, 144, 145, 146,]
 
 foreach sdk : sdk_list
   src += src_path / 'struct_converters_@0@.cpp'.format(sdk)
