@@ -1,0 +1,83 @@
+diff --git a/src/d3d9/d3d9_swapchain.cpp b/src/d3d9/d3d9_swapchain.cpp
+index 709e4c31..798fba82 100644
+--- a/src/d3d9/d3d9_swapchain.cpp
++++ b/src/d3d9/d3d9_swapchain.cpp
+@@ -38,7 +38,9 @@ namespace dxvk {
+       CreatePresenter();
+ 
+     CreateBackBuffer();
++    #ifdef DXVK_HUD
+     CreateHud();
++    #endif
+ 
+     InitRenderState();
+     InitSamplers();
+@@ -410,8 +412,10 @@ namespace dxvk {
+     auto syncEvent = m_parent->GetFrameSyncEvent(m_presentParams.BackBufferCount);
+     syncEvent->wait();
+     
++    #ifdef DXVK_HUD
+     if (m_hud != nullptr)
+       m_hud->update();
++    #endif
+ 
+     for (uint32_t i = 0; i < SyncInterval || i < 1; i++) {
+       SynchronizePresent();
+@@ -511,8 +515,10 @@ namespace dxvk {
+ 
+       m_context->draw(3, 1, 0, 0);
+ 
++      #ifdef DXVK_HUD
+       if (m_hud != nullptr)
+         m_hud->render(m_context, info.imageExtent);
++      #endif
+       
+       if (i + 1 >= SyncInterval)
+         m_context->queueSignal(syncEvent);
+@@ -796,9 +802,11 @@ namespace dxvk {
+   }
+ 
+ 
++  #ifdef DXVK_HUD
+   void D3D9SwapChainEx::CreateHud() {
+     m_hud = hud::Hud::createHud(m_device);
+   }
++  #endif
+ 
+ 
+   void D3D9SwapChainEx::InitRenderState() {
+diff --git a/src/d3d9/d3d9_swapchain.h b/src/d3d9/d3d9_swapchain.h
+index e99baa79..e89d3bdc 100644
+--- a/src/d3d9/d3d9_swapchain.h
++++ b/src/d3d9/d3d9_swapchain.h
+@@ -2,8 +2,9 @@
+ 
+ #include "d3d9_device_child.h"
+ #include "d3d9_format.h"
+-
++#ifdef DXVK_HUD
+ #include "../dxvk/hud/dxvk_hud.h"
++#endif
+ 
+ #include <vector>
+ 
+@@ -112,7 +113,9 @@ namespace dxvk {
+     Rc<DxvkImage>           m_swapImageResolve;
+     Rc<DxvkImageView>       m_swapImageView;
+ 
++    #ifdef DXVK_HUD
+     Rc<hud::Hud>            m_hud;
++    #endif
+ 
+     DxvkInputAssemblyState  m_iaState;
+     DxvkRasterizerState     m_rsState;
+@@ -161,7 +164,9 @@ namespace dxvk {
+ 
+     void DestroyGammaTexture();
+ 
++    #ifdef DXVK_HUD
+     void CreateHud();
++    #endif
+ 
+     void InitRenderState();
+ 

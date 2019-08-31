@@ -22,9 +22,10 @@ fi
 
 LICENSE="ZLIB"
 SLOT="${PV}"
+IUSE="+hud +openvr"
 RESTRICT="test"
 
-RDEPEND="=app-emulation/wine-proton-${PV}:*[${MULTILIB_USEDEP},vulkan]"
+RDEPEND="app-emulation/wine-proton:*[${MULTILIB_USEDEP},vulkan]"
 
 DEPEND="${RDEPEND}
 	dev-util/glslang"
@@ -32,6 +33,7 @@ DEPEND="${RDEPEND}
 PATCHES=(
 	"${FILESDIR}/install-each-lib-in-subdir.patch"
 	"${FILESDIR}/ddraw-stub.patch"
+	"${FILESDIR}/dxvk-hud-and-vr-options.patch"
 )
 
 bits() { [[ ${ABI} = amd64 ]] && echo 64 || echo 32; }
@@ -73,6 +75,8 @@ multilib_src_configure() {
 		--cross-file="${S}/build-wine$(bits).txt"
 		--libdir="$(get_libdir)/wine-modules/dxvk"
 		--bindir="$(get_libdir)/wine-modules/dxvk"
+		$(meson_use hud enable_hud)
+		$(meson_use openvr enable_openvr)
 		-Denable_tests=false
 		--unity=on
 	)

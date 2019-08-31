@@ -23,7 +23,7 @@ fi
 SLOT="${PV}"
 RESTRICT="test"
 
-RDEPEND="=app-emulation/wine-proton-${PV}:*[${MULTILIB_USEDEP},vulkan]"
+RDEPEND="app-emulation/wine-proton:*[${MULTILIB_USEDEP},vulkan]"
 
 DEPEND="${RDEPEND}"
 
