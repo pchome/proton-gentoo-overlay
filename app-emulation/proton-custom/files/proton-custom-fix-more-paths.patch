@@ -1,0 +1,25 @@
+--- a/proton
++++ b/proton
+@@ -96,9 +96,9 @@
+         import configparser
+         self.conf = configparser.ConfigParser()
+         self.conf.optionxform = str
+-        self.conf.read(base_dir + "/proton.conf")
++        self.conf.read(os.path.join(base_dir, "/proton.conf"))
+ 
+-        self.base_dir  = self.conf_path("base_dir",  base_dir + "/")
++        self.base_dir  = self.conf_path("base_dir",  os.path.join(base_dir, "/"))
+         self.dist_dir  = self.conf_path("dist_dir",  self.path("dist/"))
+ 
+         self.bin_dir   = self.conf_path("bin_dir",   self.path(self.dist_dir, "bin/"))
+@@ -113,8 +113,8 @@
+         self.dist_version_file = self.conf_path("dist_version_file", self.path(self.dist_dir, "version"))
+         self.user_settings_file = self.conf_path("user_settings_file", self.path("user_settings.py"))
+ 
+-        self.wine_bin = self.conf_path("wine_bin", self.bin_dir + "wine")
+-        self.wineserver_bin = self.conf_path("wineserver_bin", self.bin_dir + "wineserver")
++        self.wine_bin = self.conf_path("wine_bin", os.path.join(self.bin_dir, "wine"))
++        self.wineserver_bin = self.conf_path("wineserver_bin", os.path.join(self.bin_dir, "wineserver"))
+ 
+         self.dist_lock = FileLock(self.dist_lock_file, timeout=-1)
+ 

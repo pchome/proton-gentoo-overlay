@@ -19,8 +19,8 @@ if [[ ${PV} == "9999" ]] ; then
 	SRC_URI=""
 else
 	PROTON_VER="${PV}"
-	GIT_V="4.11-3"
-	GIT_COMMIT=a5fa18152226c864131eb91998c73add2973573f
+	GIT_V="4.11-4"
+	GIT_COMMIT=c149aae8881f92b35e9d5627c74dac3ac3ed1586
 	SRC_URI="https://github.com/ValveSoftware/Proton/archive/${GIT_COMMIT}.zip -> Proton-${GIT_V}.zip"
 	S="${WORKDIR}/Proton-${GIT_COMMIT}"
 	KEYWORDS="-* ~amd64"

@@ -1,0 +1,20 @@
+--- a/proton
++++ b/proton
+@@ -408,6 +408,9 @@
+                     dxvkfiles.append("d3d9")
+                 else:
+                     wined3dfiles.append("d3d9")
++                if "winedxgi" in g_session.compat_config:
++                    dxvkfiles.remove("dxgi")
++                    wined3dfiles.append("dxgi")
+ 
+             for f in wined3dfiles:
+                 try_copy(os.path.join(g_proton.default_pfx_dir, "drive_c/windows/system32/" + f + ".dll"),
+@@ -522,6 +525,7 @@
+ 
+         if not self.check_environment("PROTON_USE_WINED3D", "wined3d"):
+             self.check_environment("PROTON_USE_WINED3D11", "wined3d")
++            self.check_environment("PROTON_USE_WINEDXGI", "winedxgi")
+         self.check_environment("PROTON_USE_D9VK", "d9vk")
+         self.check_environment("PROTON_NO_D3D11", "nod3d11")
+         self.check_environment("PROTON_NO_D3D10", "nod3d10")

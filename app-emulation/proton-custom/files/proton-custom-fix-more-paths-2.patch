@@ -1,0 +1,69 @@
+--- a/proton
++++ b/proton
+@@ -96,9 +96,9 @@
+         import configparser
+         self.conf = configparser.ConfigParser()
+         self.conf.optionxform = str
+-        self.conf.read(os.path.join(base_dir, "/proton.conf"))
++        self.conf.read(os.path.join(base_dir, "proton.conf"))
+ 
+-        self.base_dir  = self.conf_path("base_dir",  os.path.join(base_dir, "/"))
++        self.base_dir  = self.conf_path("base_dir",  base_dir + "/")
+         self.dist_dir  = self.conf_path("dist_dir",  self.path("dist/"))
+ 
+         self.bin_dir   = self.conf_path("bin_dir",   self.path(self.dist_dir, "bin/"))
+@@ -216,18 +216,18 @@
+                 return
+ 
+             if old_proton_ver == "3.7" and old_prefix_ver == "1":
+-                if not os.path.exists(self.pfx_path("/drive_c/windows/syswow64/kernel32.dll")):
++                if not os.path.exists(self.pfx_path("drive_c/windows/syswow64/kernel32.dll")):
+                     #shipped a busted 64-bit-only installation on 20180822. detect and wipe clean
+                     log("Detected broken 64-bit-only installation, re-creating prefix.")
+                     shutil.rmtree(self.prefix_dir)
+                     return
+ 
+             #replace broken .NET installations with wine-mono support
+-            if os.path.exists(self.pfx_path("/drive_c/windows/Microsoft.NET/NETFXRepair.exe")) and \
+-                    file_is_wine_fake_dll(self.pfx_path("/drive_c/windows/system32/mscoree.dll")):
++            if os.path.exists(self.pfx_path("drive_c/windows/Microsoft.NET/NETFXRepair.exe")) and \
++                    file_is_wine_fake_dll(self.pfx_path("drive_c/windows/system32/mscoree.dll")):
+                 log("Broken .NET installation detected, switching to wine-mono.")
+                 #deleting this directory allows wine-mono to work
+-                shutil.rmtree(self.pfx_path("/drive_c/windows/Microsoft.NET"))
++                shutil.rmtree(self.pfx_path("drive_c/windows/Microsoft.NET"))
+ 
+         except ValueError:
+             log("Prefix has an invalid version?! You may want to back up user files and delete this prefix.")
+@@ -264,7 +264,7 @@
+             ( "LiberationMono-Regular.ttf", "cour.ttf" ),
+         ]
+ 
+-        windowsfonts = self.pfx_path("/drive_c/windows/Fonts")
++        windowsfonts = self.pfx_path("drive_c/windows/Fonts")
+         makedirs(windowsfonts)
+         for p in fontsmap:
+             lname = os.path.join(windowsfonts, p[1])
+@@ -285,10 +285,10 @@
+                 self.upgrade_pfx(None)
+ 
+             if not os.path.exists(self.prefix_dir):
+-                makedirs(self.pfx_path("/drive_c"))
+-                set_dir_casefold_bit(self.pfx_path("/drive_c"))
++                makedirs(self.pfx_path("drive_c"))
++                set_dir_casefold_bit(self.pfx_path("drive_c"))
+ 
+-            if not os.path.exists(self.pfx_path("/user.reg")):
++            if not os.path.exists(self.pfx_path("user.reg")):
+                 self.copy_pfx()
+ 
+             with open(self.version_file, "w") as f:
+@@ -304,7 +304,7 @@
+             else:
+                 #linux-only fallback, really shouldn't get here
+                 steamdir = os.environ["HOME"] + ".steam/root/"
+-            dst = self.pfx_path("/drive_c/Program Files (x86)/")
++            dst = self.pfx_path("drive_c/Program Files (x86)/")
+             makedirs(dst + "Steam")
+             filestocopy = ["steamclient.dll",
+                     "steamclient64.dll",
