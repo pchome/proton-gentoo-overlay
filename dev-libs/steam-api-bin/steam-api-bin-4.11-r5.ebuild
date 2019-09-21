@@ -17,7 +17,10 @@ if [[ ${PV} == "9999" ]] ; then
 	inherit git-r3
 	SRC_URI=""
 else
-	SRC_URI="https://github.com/ValveSoftware/Proton/archive/${PV}.tar.gz -> ${P}.tar.gz"
+	GIT_V="4.11-5"
+	GIT_COMMIT=8d895938e6cab82df5e50211e441135d08573d9a
+	SRC_URI="https://github.com/ValveSoftware/Proton/archive/${GIT_COMMIT}.zip -> Proton-${GIT_V}.zip"
+	S="${WORKDIR}/Proton-${GIT_COMMIT}"
 	KEYWORDS="-* ~amd64"
 fi
 

@@ -30,13 +30,13 @@ RDEPEND="app-emulation/wine-proton:*[${MULTILIB_USEDEP},vulkan]"
 DEPEND="${RDEPEND}
 	dev-util/glslang"
 
+BDEPEND="dev-util/meson-common-winelib"
+
 PATCHES=(
 	"${FILESDIR}/install-each-lib-in-subdir.patch"
 	"${FILESDIR}/dxvk-hud-and-vr-options.patch"
 	"${FILESDIR}/d9vk-hud-option.patch"
 )
-
-bits() { [[ ${ABI} = amd64 ]] && echo 64 || echo 32; }
 
 dxvk_check_requirements() {
 	if [[ ${MERGE_TYPE} != binary ]]; then
@@ -54,29 +54,49 @@ pkg_setup() {
 	dxvk_check_requirements
 }
 
-src_prepare() {
-	default
+cross_file() { [[ ${ABI} = amd64 ]] && echo "${CHOST_amd64}.x86_64.winelib" || echo "${CHOST_x86}.x86.winelib" ; }
 
-	bootstrap_d9vk() {
-		# Add *FLAGS to cross-file
-		sed -E \
-			-e "s#^(c_args.*)#\1 + $(_meson_env_array "${CFLAGS}")#" \
-			-e "s#^(cpp_args.*)#\1 + $(_meson_env_array "${CXXFLAGS}")#" \
-			-e "s#^(c_link_args.*)#\1 + $(_meson_env_array "${LDFLAGS}")#" \
-			-e "s#^(cpp_link_args.*)#\1 + $(_meson_env_array "${LDFLAGS}")#" \
-			-i build-wine$(bits).txt || die
-	}
+winelib_flags() {
+	# winelib specific flags for the project
+	local winelib_cargs="${CFLAGS}"
+	local winelib_cppargs="${CXXFLAGS}"
+	local winelib_largs="${LDFLAGS}"
 
-	multilib_foreach_abi bootstrap_d9vk || die
+	# Do not emit STB_GNU_UNIQUE symbols for uuidof declarations, which prevents .so files from being unloaded.
+	winelib_cppargs="${winelib_cppargs} --no-gnu-unique"
+
+	# No min()/max()
+	winelib_cppargs="${winelib_cppargs} -DNOMINMAX"
+
+	# Hide symbols
+	winelib_cargs="${winelib_cargs} -fvisibility=hidden"
+	winelib_cppargs="${winelib_cppargs} -fvisibility=hidden -fvisibility-inlines-hidden"
+
+	# Fix compilation for Wine >=4.15
+	winelib_cargs="${winelib_cargs} -fpermissive"
+	winelib_cppargs="${winelib_cppargs} -fpermissive"
+
+	# For deps and entry points
+	winelib_largs="${winelib_largs} -mwindows"
+
+	if [[ $1 ]]; then
+		[[ $1 = "cflags" ]] && echo "${winelib_cargs}"
+		[[ $1 = "cppflags" ]] && echo "${winelib_cppargs}"
+		[[ $1 = "ldflags" ]] && echo "${winelib_largs}"
+	fi
 }
 
 multilib_src_configure() {
 	local emesonargs=(
-		--cross-file="${S}/build-wine$(bits).txt"
+		--cross-file="$(cross_file)"
 		--libdir="$(get_libdir)/wine-modules/d9vk"
 		--bindir="$(get_libdir)/wine-modules/d9vk"
 		$(meson_use hud enable_hud)
 		$(meson_use openvr enable_openvr)
+		-Dc_args="$(winelib_flags cflags)"
+		-Dcpp_args="$(winelib_flags cppflags)"
+		-Dc_link_args="$(winelib_flags ldflags)"
+		-Dcpp_link_args="$(winelib_flags ldflags)"
 		-Denable_tests=false
 		-Denable_dxgi=false
 		-Denable_d3d10=false

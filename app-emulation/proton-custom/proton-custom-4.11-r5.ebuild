@@ -19,22 +19,27 @@ if [[ ${PV} == "9999" ]] ; then
 	SRC_URI=""
 else
 	PROTON_VER="${PV}"
-	SRC_URI="https://github.com/ValveSoftware/Proton/archive/${PV}.tar.gz -> ${P}.tar.gz"
+	GIT_V="4.11-5"
+	GIT_COMMIT=8d895938e6cab82df5e50211e441135d08573d9a
+	SRC_URI="https://github.com/ValveSoftware/Proton/archive/${GIT_COMMIT}.zip -> Proton-${GIT_V}.zip"
+	S="${WORKDIR}/Proton-${GIT_COMMIT}"
 	KEYWORDS="-* ~amd64"
 fi
+
+PROTON_INITIAL_VER="4.11-2"
 
 LICENSE="ValveSteamLicense"
 SLOT="${PV}"
 
 RESTRICT="test"
 
-RDEPEND="=app-emulation/wine-proton-${PV}:*[${MULTILIB_USEDEP}]
+RDEPEND="app-emulation/wine-proton:${SLOT}[${MULTILIB_USEDEP}]
 
-	=app-emulation/d9vk-module-${PV}:*[${MULTILIB_USEDEP}]
-	=app-emulation/dxvk-module-${PV}:*[${MULTILIB_USEDEP}]
+	app-emulation/d9vk-module:*[${MULTILIB_USEDEP}]
+	app-emulation/dxvk-module:*[${MULTILIB_USEDEP}]
 
-	=app-emulation/steam-client-helper-${PV}:*[${MULTILIB_USEDEP}]
-	=app-emulation/steam-helper-${PV}
+	app-emulation/steam-client-helper:${SLOT}[${MULTILIB_USEDEP}]
+	app-emulation/steam-helper:${SLOT}
 
 	>=app-emulation/faudio-19.08:*[${MULTILIB_USEDEP}]
 
@@ -48,10 +53,14 @@ PATCHES=(
 	"${FILESDIR}/proton-custom-use-wine-modules.patch"
 	"${FILESDIR}/proton-custom-use-config.patch"
 	"${FILESDIR}/proton-custom-user_settings.patch"
+	"${FILESDIR}/proton-custom-fix-paths.patch"
+	"${FILESDIR}/proton-custom-fix-more-paths.patch"
+	"${FILESDIR}/proton-custom-fix-more-paths-2.patch"
+	"${FILESDIR}/proton-custom-wine-dxgi.patch"
 )
 
 src_prepare() {
-	echo "$(date +"%s") proton-${PROTON_VER}-1" >> "${S}/version"
+	echo "$(date +"%s") proton-${PROTON_INITIAL_VER}" >> "${S}/version"
 
 	cp "${FILESDIR}/proton.conf.in" "${S}/proton.conf"
 
@@ -64,7 +73,6 @@ src_prepare() {
 	
 	# set current version
 	sed -E \
-		-e "s#^CURRENT_PREFIX_VERSION=\".*-1\"#CURRENT_PREFIX_VERSION=\"${PROTON_VER}-1\"#" \
 		-e "s#^PFX=\"Proton: \"#PFX=\"Proton (custom): \"#" \
 		-i proton || die
 

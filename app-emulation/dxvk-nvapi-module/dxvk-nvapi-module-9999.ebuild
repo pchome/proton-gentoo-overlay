@@ -27,33 +27,36 @@ RDEPEND="app-emulation/wine-proton:*[${MULTILIB_USEDEP},vulkan]"
 
 DEPEND="${RDEPEND}"
 
+BDEPEND="dev-util/meson-common-winelib"
+
 PATCHES=(
 	"${FILESDIR}/install-each-lib-in-subdir.patch"
 )
 
-bits() { [[ ${ABI} = amd64 ]] && echo 64 || echo 32; }
+cross_file() { [[ ${ABI} = amd64 ]] && echo "${CHOST_amd64}.x86_64.winesrc" || echo "${CHOST_x86}.x86.winesrc" ; }
 
-src_prepare() {
-	default
+winesrc_flags() {
+	# winesrc specific flags for the project
+	local winesrc_cargs="${CFLAGS}"
+	local winesrc_largs="${LDFLAGS}"
 
-	bootstrap_nvapi() {
-		# Add *FLAGS to cross-file
-		sed -E \
-			-e "s#^(c_args.*)#\1 + $(_meson_env_array "${CFLAGS}")#" \
-			-e "s#^(cpp_args.*)#\1 + $(_meson_env_array "${CXXFLAGS}")#" \
-			-e "s#^(c_link_args.*)#\1 + $(_meson_env_array "${LDFLAGS}")#" \
-			-e "s#^(cpp_link_args.*)#\1 + $(_meson_env_array "${LDFLAGS}")#" \
-			-i build-wine$(bits).txt || die
-	}
+	# Hide symbols
+	winesrc_cargs="${winesrc_cargs} -fvisibility=hidden"
 
-	multilib_foreach_abi bootstrap_nvapi || die
+	if [[ $1 ]]; then
+		[[ $1 = "cflags" ]] && echo "${winesrc_cargs}"
+		[[ $1 = "ldflags" ]] && echo "${winesrc_largs}"
+	fi
 }
 
 multilib_src_configure() {
 	local emesonargs=(
-		--cross-file="${S}/build-wine$(bits).txt"
+		--cross-file="$(cross_file)"
 		--libdir="$(get_libdir)/wine-modules/dxvk"
 		--bindir="$(get_libdir)/wine-modules/dxvk"
+		-Dc_args="$(winesrc_flags cflags)"
+		-Dc_link_args="$(winesrc_flags ldflags)"
+		--unity=on
 	)
 	meson_src_configure
 }
