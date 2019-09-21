@@ -1,0 +1,16 @@
+diff --git a/src/meson.build b/src/meson.build
+index e9c40f1..e5bfe0a 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -4,7 +4,9 @@ nvapi_src = files([
+   'dxvk/dxvk_interfaces.cpp',
+ ])
+ 
+-nvapi_dll = shared_library('nvapi'+dll_suffix, nvapi_src,
++nvapi_dll = shared_library('nvapi'+dll_suffix+'.dll', nvapi_src,
+   name_prefix         : '',
+   dependencies        : [ lib_dxgi, lib_d3d11 ],
++  objects             : 'nvapi'+dll_suffix+'.spec',
++  install_dir         : get_option('libdir') / 'nvapi-test',
+   install             : true)
+\ No newline at end of file

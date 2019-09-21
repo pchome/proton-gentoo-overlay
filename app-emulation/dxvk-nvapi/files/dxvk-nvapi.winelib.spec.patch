@@ -1,0 +1,19 @@
+diff --git a/src/nvapi.spec b/src/nvapi.spec
+new file mode 100644
+index 0000000..f0c054b
+--- /dev/null
++++ b/src/nvapi.spec
+@@ -0,0 +1,5 @@
++@ cdecl nvapi_QueryInterface(long)
++@ stub DllCanUnloadNow
++@ stub DllGetClassObject
++@ stub DllRegisterServer
++@ stub DllUnregisterServer
+diff --git a/src/nvapi64.spec b/src/nvapi64.spec
+new file mode 120000
+index 0000000..cf18cbc
+--- /dev/null
++++ b/src/nvapi64.spec
+@@ -0,0 +1 @@
++nvapi.spec
+\ No newline at end of file
