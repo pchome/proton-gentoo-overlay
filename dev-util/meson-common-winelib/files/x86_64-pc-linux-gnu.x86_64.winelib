@@ -1,0 +1,19 @@
+[binaries]
+c = ['winegcc', '-m64']
+cpp = ['wineg++', '-m64']
+ar = 'ar'
+strip = 'strip'
+
+[properties]
+needs_exe_wrapper = true
+
+c_args=['-fvisibility=hidden', '-fpermissive']
+cpp_args=['--no-gnu-unique', '-DNOMINMAX', '-fvisibility=hidden', '-fvisibility-inlines-hidden', '-fpermissive']
+cpp_link_args=['-mwindows']
+
+[host_machine]
+system = 'linux'
+cpu_family = 'x86_64'
+cpu = 'x86_64'
+endian = 'little'
+

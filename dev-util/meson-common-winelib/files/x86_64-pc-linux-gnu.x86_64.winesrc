@@ -1,0 +1,16 @@
+[binaries]
+c = ['winegcc', '-m64']
+cpp = ['wineg++', '-m64']
+ar = 'ar'
+strip = 'strip'
+
+[properties]
+needs_exe_wrapper = true
+
+c_args=['-D__WINESRC__']
+
+[host_machine]
+system = 'linux'
+cpu_family = 'x86_64'
+cpu = 'x86_64'
+endian = 'little'
