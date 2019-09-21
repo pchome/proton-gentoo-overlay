@@ -1,0 +1,210 @@
+diff --git a/protonfixes/gamefixes/verbs/grabpointer.verb b/protonfixes/gamefixes/verbs/grabpointer.verb
+new file mode 100644
+index 0000000..26f9cc6
+--- /dev/null
++++ b/protonfixes/gamefixes/verbs/grabpointer.verb
+@@ -0,0 +1,22 @@
++w_metadata grabpointer=y settings \
++    title="Allow mouse capture (default)"
++w_metadata grabpointer=n settings \
++    title="Disallow mouse capture"
++
++load_grabpointer()
++{
++    case "$1" in
++        y|n) arg=$1;;
++        *) w_die "illegal value $1 for GrabPointer";;
++    esac
++
++    echo "Setting GrabPointer to $arg"
++    cat > "$W_TMP"/set-gptr.reg <<_EOF_
++REGEDIT4
++
++[HKEY_CURRENT_USER\\Software\\Wine\\X11 Driver]
++"GrabPointer"="$arg"
++
++_EOF_
++    w_try_regedit "$W_TMP"/set-gptr.reg
++}
+diff --git a/protonfixes/gamefixes/verbs/grabpointer=n.verb b/protonfixes/gamefixes/verbs/grabpointer=n.verb
+new file mode 120000
+index 0000000..33bf403
+--- /dev/null
++++ b/protonfixes/gamefixes/verbs/grabpointer=n.verb
+@@ -0,0 +1 @@
++grabpointer.verb
+\ No newline at end of file
+diff --git a/protonfixes/gamefixes/verbs/grabpointer=y.verb b/protonfixes/gamefixes/verbs/grabpointer=y.verb
+new file mode 120000
+index 0000000..33bf403
+--- /dev/null
++++ b/protonfixes/gamefixes/verbs/grabpointer=y.verb
+@@ -0,0 +1 @@
++grabpointer.verb
+\ No newline at end of file
+diff --git a/protonfixes/logger.py b/protonfixes/logger.py
+index e8423a8..e0a3489 100644
+--- a/protonfixes/logger.py
++++ b/protonfixes/logger.py
+@@ -13,9 +13,11 @@ class Log():
+         self.pfx = 'ProtonFixes[' + str(os.getpid()) + '] '
+         self.colors = {
+             'RESET': '\u001b[0m',
+-            'INFO': '\u001b[34m',
+-            'WARN': '\u001b[33m',
+-            'CRIT': '\u001b[31m',
++            'INFO': '\u001b[0;34m',
++            'ADD': '\u001b[1;32m',
++            'DEL': '\u001b[1;30m',
++            'WARN': '\u001b[0;33m',
++            'CRIT': '\u001b[0;31m',
+             'DEBUG': '\u001b[35m'
+         }
+ 
+@@ -46,6 +48,18 @@ class Log():
+ 
+         self.log(msg, 'INFO')
+ 
++    def addition(self, msg):
++        """ Wrapper for printing "Adding" info messages
++        """
++
++        self.log(msg, 'ADD')
++
++    def deletion(self, msg):
++        """ Wrapper for printing "Removing" info messages
++        """
++
++        self.log(msg, 'DEL')
++
+     def warn(self, msg):
+         """ Wrapper for printing warning messages
+         """
+diff --git a/protonfixes/util.py b/protonfixes/util.py
+index 796be8c..d1fca76 100644
+--- a/protonfixes/util.py
++++ b/protonfixes/util.py
+@@ -212,6 +212,25 @@ def protontricks(verb):
+         winetricks_bin = which('winetricks')
+         winetricks_cmd = [winetricks_bin, '--unattended'] + verb.split(' ')
+ 
++        #zenity_bin = which('zenity')
++        # https://developer.gnome.org/pango/stable/PangoMarkupFormat.html
++        # https://docs.python.org/2/library/subprocess.html#replacing-shell-pipeline
++        # https://stackoverflow.com/questions/13332268/python-subprocess-command-with-pipe
++        zenity_cmd = [
++                '/usr/bin/zenity',
++                '--progress',
++                '--pulsate',
++                '--no-cancel',
++                '--auto-close',
++                '--width=320',
++                '--text',
++                '<b>ProtonFixes</b> is running the\n\
++<span font_desc="Terminus (TTF) 10" bgcolor="black" foreground="lightgrey">\
++$ winetricks ' + verb + ' \
++</span>\n\
++command, please wait...',
++                ]
++
+         # check is verb a custom winetricks verb
+         custom_verb = is_custom_verb(verb)
+         if custom_verb:
+@@ -226,7 +245,7 @@ def protontricks(verb):
+             # winetricks relies entirely on the existence of syswow64 to determine
+             # if the prefix is 64 bit, while proton fails to run without it
+             if 'win32' in protonprefix():
+-                log.info('Deleting syswow64')
++                log.deletion('Deleting syswow64')
+                 _del_syswow64()
+ 
+             # make sure proton waits for winetricks to finish
+@@ -237,8 +256,10 @@ def protontricks(verb):
+ 
+             log.info('Using winetricks verb ' + verb)
+             subprocess.call([env['WINESERVER'], '-w'], env=env)
+-            process = subprocess.Popen(winetricks_cmd, env=env)
+-            process.wait()
++            wt = subprocess.Popen(winetricks_cmd, env=env, stdout=subprocess.PIPE)
++            zt = subprocess.Popen(zenity_cmd, stdin=wt.stdout)
++            wt.stdout.close()
++            zt.communicate()
+             _killhanging()
+ 
+             # Check if verb recorded to winetricks log
+@@ -336,23 +357,32 @@ def append_argument(argument):
+     """ Append an argument to sys.argv
+     """
+ 
+-    log.info('Adding argument ' + argument)
++    log.addition('arg: ' + argument)
+     sys.argv.append(argument)
+     log.debug('New commandline: ' + str(sys.argv))
+ 
+-def set_environment(envvar, value):
+-    """ Add or override an environment value
++def set_environment(envvar, value, separator=None):
++    """ Add, extend or override an environment value
+     """
+ 
+-    log.info('Adding env: ' + envvar + '=' + value)
+-    os.environ[envvar] = value
+-    protonmain.g_session.env[envvar] = value
++    os_env = value
++    pm_env = value
++
++    if separator is not None:
++        if envvar in os.environ:
++            os_env = os.environ[envvar] + separator + value
++        if envvar in protonmain.g_session.env:
++            pm_env = protonmain.g_session.env[envvar] + separator + value
++
++    log.addition('env: ' + envvar + '=' + pm_env)
++    os.environ[envvar] = os_env
++    protonmain.g_session.env[envvar] = pm_env
+ 
+ def del_environment(envvar):
+     """ Remove an environment variable
+     """
+ 
+-    log.info('Removing env: ' + envvar)
++    log.deletion('env: ' + envvar)
+     if envvar in os.environ:
+         del os.environ[envvar]
+     if envvar in protonmain.g_session.env:
+@@ -409,7 +439,7 @@ def disable_nvapi():
+     """ Disable WINE nv* dlls
+     """
+ 
+-    log.info('Disabling NvAPI')
++    log.deletion('Disabling NvAPI')
+     winedll_override('nvapi', '')
+     winedll_override('nvapi64', '')
+     winedll_override('nvcuda', '')
+@@ -421,7 +451,7 @@ def disable_d3d10():
+     """ Disable WINE d3d10* dlls
+     """
+ 
+-    log.info('Disabling d3d10')
++    log.deletion('Disabling d3d10')
+     winedll_override('d3d10', '')
+     winedll_override('d3d10_1', '')
+     winedll_override('d3d10core', '')
+@@ -496,7 +526,7 @@ def set_ini_options(ini_opts, cfile, base_path='user'):
+     conf.read(cfg_path)
+ 
+     # set options
+-    log.info('Addinging INI options into '+cfile+':\n'+ str(ini_opts))
++    log.addition('INI options into '+cfile+':\n'+ str(ini_opts))
+     conf.read_string(ini_opts)
+ 
+     with open(cfg_path, 'w') as configfile:
+@@ -540,7 +570,7 @@ def set_dxvk_option(opt, val, cfile='/tmp/protonfixes_dxvk.conf'):
+         log.debug(conf.items(section))
+ 
+     # set option
+-    log.info('Addinging DXVK option: '+ str(opt) + ' = ' + str(val))
++    log.addition('DXVK: '+ str(opt) + ' = ' + str(val))
+     conf.set(section, opt, str(val))
+ 
+     with open(cfile, 'w') as configfile:
